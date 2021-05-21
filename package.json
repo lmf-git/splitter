@@ -1,5 +1,5 @@
 {
-  "name": "lmf-git/splitter",
+  "name": "splitter",
   "productName": "splitter",
   "version": "0.0.1",
   "main": "gui.js",

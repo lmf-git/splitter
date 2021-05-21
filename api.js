@@ -3,6 +3,8 @@ const ffmpeg = require('ffmpeg');
 const multer = require('multer');
 
 const app = express();
+
+// TODO: Causes error when packaged - https://stackoverflow.com/questions/60881343/electron-problem-creating-file-error-erofs-read-only-file-system
 const upload = multer({ dest: 'uploads/' });
 
 app.use(express.urlencoded({ extended: true }));
@@ -21,6 +23,7 @@ app.post('/video', upload.single('video_input'), (req, res) => {
             if (!err) {
                 console.log('The video is ready to be processed');
                 console.log(video);
+                
             } else {
                 console.log('Error: ' + err);
             }
