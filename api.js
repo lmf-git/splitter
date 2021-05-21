@@ -1,9 +1,20 @@
 const express = require('express');
 const ffmpeg = require('ffmpeg');
 const multer = require('multer');
+const fs = require('fs');
 
 const app = express();
 
+const cleanup = () => {
+    // Read uploads/ and splitted/ delete everything in both.
+    const uploadsDir = fs.readdirSync('./uploads');
+    console.log(uploadsDir);
+}
+
+// Push video buffer into ffmpeg to start manipulating it.
+// https://www.npmjs.com/package/ffmpeg
+
+// TODO: Add buttons for opening uploads and splitted folders in finder/my documents
 // TODO: Causes error when packaged - https://stackoverflow.com/questions/60881343/electron-problem-creating-file-error-erofs-read-only-file-system
 const upload = multer({ dest: 'uploads/' });
 
@@ -11,23 +22,50 @@ app.use(express.urlencoded({ extended: true }));
 
 // req.file is the name of your file in the form above, here 'uploaded_file'
 // req.body will hold the text fields, if there were any 
-app.post('/video', upload.single('video_input'), (req, res) => {
+app.post('/video', upload.single('video_input'), async (req, res) => {
+    // TODO: Clear the uploads/splitted directories here... easiest way forward.
+    cleanup();
+
+    console.log('Request received.');
+
     const result = { status: 'error', message: null };
 
-    // Push video buffer into ffmpeg to start manipulating it.
-    // https://www.npmjs.com/package/ffmpeg
+    const numParts = isNaN(parseInt(req.body.parts_input)) ?
+        parseInt(req.body.parts_input) : 2;
 
     try {
-        console.log(req.file);
-        new ffmpeg('./uploads/' + req.file.filename, (err, video) => {
-            if (!err) {
-                console.log('The video is ready to be processed');
-                console.log(video);
-                
-            } else {
-                console.log('Error: ' + err);
-            }
-        });
+        const splittingTaskIndices = [];
+        for (let i = 0; i < numParts; i++) splittingTaskIndices.push(null);
+        const splittingTasks = splittingTaskIndices.map(async (p, pIndex) => 
+            new Promise((resolve, reject) => 
+                new ffmpeg('./uploads/' + req.file.filename, (err, video) => {
+                    if (err) return reject(err);
+
+                    console.log('Splitting video into part: ', pIndex + 1);
+
+                    const duration = video.metadata.duration.seconds;
+                    const partDuration = duration / numParts;
+                    const startOffset = pIndex * partDuration;
+
+                    console.log(duration, partDuration, startOffset);
+        
+                    video.setVideoStartTime(startOffset);
+                    video.setVideoDuration(startOffset + partDuration);
+            
+                    // Step 2/2: Save parts.
+                    const fileSavePath = video.file_path.replace('/uploads/', '/splitted/');
+                    const fileWithExtPath = `${fileSavePath}-${pIndex + 1}.${video.metadata.video.container}`;
+                    video.save(fileWithExtPath, (error, file) => {
+                        if (!error) resolve(file);
+                        else reject(error);
+                    });
+                })
+            )
+        );
+
+        // Should contain data about failure/success of each part.
+        const splitTaskResults = await Promise.all(splittingTasks);
+        console.log(splitTaskResults.every(t => !!t));
 
         result.status = 'success';
 
