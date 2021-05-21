@@ -1,23 +1,38 @@
 const express = require('express');
-const ffmpeg = require('ffmpeg-static');
+const ffmpeg = require('ffmpeg');
 const multer  = require('multer');
 
 const app = express();
-const upload = multer();
+const upload = multer({ dest: 'uploads/' });
 
 app.use(express.urlencoded({ extended: true }));
 
 // req.file is the name of your file in the form above, here 'uploaded_file'
 // req.body will hold the text fields, if there were any 
-app.post('/video', upload.single('video_input'), function (req, res) {
+app.post('/video', upload.single('video_input'), (req, res) => {
+    const result = { status: 'error', message: null };
 
     // Push video buffer into ffmpeg to start manipulating it.
+    // https://www.npmjs.com/package/ffmpeg
 
-    console.log(req.file, req.body);
+    try {
+        console.log(req.file);
+        new ffmpeg('./uploads/' + req.file.filename, function (err, video) {
+            if (!err) {
+                console.log('The video is ready to be processed');
+                console.log(video);
+            } else {
+                console.log('Error: ' + err);
+            }
+        });
 
-    return res.status(200).json({ 
-        status: 'success' 
-    });
+        result.status = 'success';
+
+    } catch(e) {
+        result.message = e.message;
+    }
+
+    return res.status(200).json(result);
 });
 
 app.use('/', (req, res) => res.status(200).json({ 
