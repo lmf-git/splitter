@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Comic Neue', cursive;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            animation: titleFlamboyant 15s;
+            animation-direction: alternate;
+            animation-iteration-count: infinite;
+            color: #d82253;
+
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .button {
+            border: none;
+            background-color: #d82253;
+            padding: .5rem 2rem;
+            border-radius: 1.25rem;
+
+            animation: titleFlamboyant 15s;
+            animation-direction: alternate;
+            animation-iteration-count: infinite;
+
+            color: #fffb00;
+            font-size: 1.05rem;
+
+            font-weight: bold;
+        }
+        .button.secondary {
+            background-color: #fffb00;
+            color: #d82253;
+        }
+
+        .wrapper {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 2.5rem;
+        }
+
+        form {
+
+        }
+
+        .input {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 2rem;
+        }
+
+        .input label {
+            font-size: 1.25em;
+            margin-bottom: .25em;
+        }
+
+        .actions {
+            text-align: center;
+        }
+
+        .rainbow {
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            position: absolute;
+            top: 0;
+            left: 0;
+
+            background: url('static/rainbow.svg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        @keyframes titleFlamboyant {
+            0% {
+                color: #d82253;
+            }
+            8.3% {
+                color: #962192;
+            }
+            16.6% {
+                color: #5228cc;
+            }
+            24.9% {
+                color: #0433ff;
+            }
+            33.2% {
+                color: #009292;
+            }
+            41.5% {
+                color: #00f900;
+            }
+            49.8% {
+                color: #cafa00;
+            }
+            58.1% {
+                color: #fffb00;
+            }
+            66.4% {
+                color: #ffc700;
+            }
+            74.7% {
+                color: #ff9300;
+            }
+            83% {
+                color: #ff5000;
+            }
+            91.3% {
+                color: #ff2600;
+            }
+            100% {
+                color: #d82253;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="rainbow"></div> 
+
+    <div class="wrapper">
+        <h1>splitter</h1>
+    
+        <form>
+            <div class="input">
+                <label for="video_input">video file</label>
+                <input id="video_input" name="video_input" type="file" required />
+            </div>
+    
+            <div class="input">
+                <label for="parts_input"># number parts</label>
+                <input id="parts_input" min="2" name="parts_input" type="number" value="2" />
+            </div>
+    
+            <div class="actions">
+                <!-- TODO: Cancel button becomes again after completion -->
+                <button class="button secondary">cancel</button>
+                <button class="button" onclick="submit">start</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', async (ev) => {
+            ev.preventDefault();
+
+            // Extract the values from the form.
+            const apiURL = 'http://0.0.0.0:3000/video';
+            const postData = new FormData(ev.target);
+            const postRequest = await fetch(apiURL, { method: 'POST', body: postData });
+
+            console.log(postRequest);
+            console.log(await postRequest.json());
+        });
+    </script>
+</body>
+</html>
