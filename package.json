@@ -1,12 +1,52 @@
 {
+  "name": "lmf-git/splitter",
+  "productName": "splitter",
+  "version": "0.0.1",
   "main": "gui.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "dependencies": {
-    "electron": "^12.0.9",
+    "electron-squirrel-startup": "^1.0.0",
     "express": "^4.17.1",
     "ffmpeg": "^0.0.4",
     "multer": "^1.4.2"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.55",
+    "@electron-forge/maker-deb": "^6.0.0-beta.55",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.55",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.55",
+    "@electron-forge/maker-zip": "^6.0.0-beta.55",
+    "electron": "^12.0.9"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "lmf_git/splitter"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
   }
 }

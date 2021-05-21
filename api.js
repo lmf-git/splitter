@@ -1,6 +1,6 @@
 const express = require('express');
 const ffmpeg = require('ffmpeg');
-const multer  = require('multer');
+const multer = require('multer');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -17,7 +17,7 @@ app.post('/video', upload.single('video_input'), (req, res) => {
 
     try {
         console.log(req.file);
-        new ffmpeg('./uploads/' + req.file.filename, function (err, video) {
+        new ffmpeg('./uploads/' + req.file.filename, (err, video) => {
             if (!err) {
                 console.log('The video is ready to be processed');
                 console.log(video);
