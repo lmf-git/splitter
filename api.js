@@ -43,18 +43,19 @@ app.post('/video', upload.single('video_input'), async (req, res) => {
 
                     console.log('Splitting video into part: ', pIndex + 1);
 
+                    // Global chunk/part info.
                     const duration = video.metadata.duration.seconds;
-                    const partDuration = duration / numParts;
-                    const startOffset = pIndex * partDuration;
+                    const partDuration = Math.round(duration / numParts);
+                    
+                    // Update the video to the adjusted start time (returns Video type).
+                    video.setVideoStartTime(pIndex * partDuration);
 
-                    console.log(duration, partDuration, startOffset);
-        
-                    video.setVideoStartTime(startOffset);
-                    video.setVideoDuration(startOffset + partDuration);
+                    // Trim the ending
+                    video.setVideoDuration(partDuration);
             
                     // Step 2/2: Save parts.
                     const fileSavePath = video.file_path.replace('/uploads/', '/splitted/');
-                    const fileWithExtPath = `${fileSavePath}-${pIndex + 1}.${video.metadata.video.container}`;
+                    const fileWithExtPath = `${fileSavePath}-${pIndex + 1}.mp4`;
                     video.save(fileWithExtPath, (error, file) => {
                         if (!error) resolve(file);
                         else reject(error);
