@@ -30,7 +30,7 @@ app.post('/video', upload.single('video_input'), async (req, res) => {
 
     const result = { status: 'error', message: null };
 
-    const numParts = isNaN(parseInt(req.body.parts_input)) ?
+    const numParts = !isNaN(parseInt(req.body.parts_input)) ?
         parseInt(req.body.parts_input) : 2;
 
     try {
